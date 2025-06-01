@@ -29,7 +29,7 @@ const doorNormalTexture = textureLoader.load("./textures/door/normal.jpg");
 const doorRoughTexture = textureLoader.load("./textures/door/roughness.jpg");
 
 //matcaps. These need to be encoded in sRGB because they are matcaps
-const matcapOne = textureLoader.load("./matcaps.1.png");
+const matcapOne = textureLoader.load("./textures/matcaps/1.png");
 matcapOne.colorSpace = THREE.SRGBColorSpace;
 
 //gradients
@@ -39,27 +39,77 @@ const gradientThree = textureLoader.load("./gradients/3.jpg");
 Materials
 */
 
+//Basic Mesh Material
 const material = new THREE.MeshBasicMaterial();
 material.map = doorColorTexture;
+//material.color = new THREE.Color("red");
+//material.wireframe = true;
+material.transparent = true;
+//material.opacity = .2;
+material.alphaMap = doorAlphaTexture;
+material.side = THREE.DoubleSide;
+
+//Basic Materials
+const materialWhite = new THREE.MeshBasicMaterial();
+materialWhite.color = new THREE.Color("white");
+
+//Normal Materials
+const normalMaterial = new THREE.MeshNormalMaterial();
+normalMaterial.flatShading = true;
+
+//Mesh Matcap Material
+
+const materialMatCap = new THREE.MeshMatcapMaterial();
+materialMatCap.matcap = matcapOne;
+
+//Mesh Depth Materials
 
 /*
 OBJECTS
 */
 
-const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), material);
+//sphere
+const sphere = new THREE.Mesh(
+  new THREE.SphereGeometry(0.5, 16, 16),
+  normalMaterial
+);
 sphere.position.set(-2, 0, 0);
 
+const sphereMetcap = new THREE.Mesh(
+  new THREE.SphereGeometry(0.5, 16, 16),
+  materialMatCap
+);
+sphereMetcap.position.setY(1);
+
+//torus
 const torus = new THREE.Mesh(
   new THREE.TorusGeometry(0.3, 0.2, 16, 32),
-  material
+  materialWhite
 );
 torus.position.set(2, 0, 0);
 
+//plane
 const plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material);
+console.log(plane);
 
-// Scene
+//cone
+const cone = new THREE.Mesh(
+  new THREE.ConeGeometry(0.5, 0.7, 32),
+  normalMaterial
+);
+cone.position.setY(-1);
+
+//Torus Knot
+const knot = new THREE.Mesh(
+  new THREE.TorusKnotGeometry(10, 3, 100, 16),
+  materialMatCap
+);
+
+/* 
+Scene
+ */
 const scene = new THREE.Scene();
-scene.add(torus, plane, sphere);
+scene.add(torus, plane, sphere, sphereMetcap, cone, knot);
 
 /**
  * Sizes
@@ -114,6 +164,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 /**
  * Animate
  */
+
 const clock = new THREE.Clock();
 
 const tick = () => {
@@ -121,12 +172,16 @@ const tick = () => {
 
   //update objects
   sphere.rotation.y = 0.1 * elapsedTime;
+  sphereMetcap.rotation.y = 0.1 * elapsedTime;
   plane.rotation.y = 0.1 * elapsedTime;
   torus.rotation.y = 0.1 * elapsedTime;
+  cone.rotation.y = 0.1 * elapsedTime;
 
   sphere.rotation.x = -0.15 * elapsedTime;
+  sphereMetcap.rotation.x = -0.15 * elapsedTime;
   plane.rotation.x = -0.15 * elapsedTime;
   torus.rotation.x = -0.15 * elapsedTime;
+  cone.rotation.x = -0.15 * elapsedTime;
 
   // Update controls
   controls.update();
