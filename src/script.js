@@ -2,6 +2,9 @@ import * as THREE from "three";
 import { ThreeMFLoader } from "three/examples/jsm/Addons.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import GUI from 'lil-gui'
+import { RGBELoader } from "three/examples/jsm/Addons.js";
+
+console.log({RGBELoader})
 
 
 /**
@@ -13,6 +16,8 @@ const gui = new GUI()
 
 const sphereStandardFolder = gui.addFolder('Standard Material Sphere')
 const capsulseFolder = gui.addFolder('Capsule')
+const boxPhongFolder = gui.addFolder('Box Phong')
+const normalMaterialFolder = gui.addFolder('Normal Sphere')
 
 
 /**
@@ -47,6 +52,10 @@ matcapOne.colorSpace = THREE.SRGBColorSpace;
 
 //gradients
 const gradientThree = textureLoader.load("./textures/gradients/3.jpg");
+
+
+//env map
+
 
 /*
 Materials
@@ -85,6 +94,9 @@ const lambertMaterial = new THREE.MeshLambertMaterial();
 const phongMaterial = new THREE.MeshPhongMaterial();
 phongMaterial.shininess = 100
 phongMaterial.specular = new THREE.Color(0x1188ff)
+phongMaterial.roughness = .5
+phongMaterial.metalness = 1
+
 
 
 //mesh Toon Material
@@ -109,23 +121,48 @@ standardMaterial.metalness = 1
 Debug Materials
 */
 
-//Standard Material Sphere
+//Folders
 const standardMaterialSphere = sphereStandardFolder.addFolder('Standard Material')
-standardMaterialSphere
-.add(standardMaterial, 'roughness')
-.min(0)
- .max(1) 
- .step(0.001)
+const phongMaterialAdjust = boxPhongFolder.addFolder('Phong Material')
+const normalMaterialAdjust = normalMaterialFolder.addFolder('Normal Material')
 
-standardMaterialSphere
-.add(standardMaterial, 'metalness')
+
+function MetalRough(folder, material)
+{
+folder
+.add(material, 'roughness')
+.min(0)
+.max(1)
+.step(0.001)
+
+folder
+.add(material,'metalness')
 .min(0) 
 .max(1) 
 .step(0.001)
+}
 
+function wireFrame(folder, material)
+{
+  folder
+  .add(material, 'wireframe')
+}
 
+function materialDebugs()
+{
+  //metalness and roughness
+  MetalRough(standardMaterialSphere, standardMaterial)
+  MetalRough(phongMaterialAdjust, phongMaterial)
+  
 
+  //wireframes
+  wireFrame(standardMaterialSphere,standardMaterial)
+  wireFrame(phongMaterialAdjust, phongMaterial)
+  wireFrame(normalMaterialAdjust, normalMaterial)
 
+}
+
+materialDebugs()
 
 /*
 OBJECTS
@@ -206,7 +243,7 @@ capsule.position.x = 2
 //Standard Material Sphere
 const standardSphereMove = sphereStandardFolder.addFolder('Move')
 const capsuleMove = capsulseFolder.addFolder('Move')
-
+const boxPhongMove = boxPhongFolder.addFolder('Move')
 
 function moveObject(folder, object){
 
@@ -221,12 +258,23 @@ function moveObject(folder, object){
     .min(-5)
     .max(5)
     .step(.01)
+
+   folder
+    .add(object.position, 'z')
+    .min(-5)
+    .max(5)
+    .step(.01)
 }
 
+
+
+function debugMove(){
 moveObject(standardSphereMove, sphereStandard)
 moveObject(capsuleMove, capsule)
+moveObject(boxPhongMove, boxPhong)
+}
 
-
+debugMove()
 
 
 /* 
@@ -262,6 +310,21 @@ window.addEventListener("resize", () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
+
+/**
+ * RGBE Loader
+ */
+
+const rgbeLoader = new RGBELoader()
+
+rgbeLoader.load('./textures/environmentMap/2k.hdr', (environmentMap)=>{
+
+  environmentMap.mapping = THREE.EquirectangularReflectionMapping
+
+  scene.background = environmentMap
+  scene.environment = environmentMap
+
+})
 
 /*
 LIGHTS
