@@ -1,6 +1,19 @@
 import * as THREE from "three";
 import { ThreeMFLoader } from "three/examples/jsm/Addons.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import GUI from 'lil-gui'
+
+
+/**
+ * DEBUG
+ ** */
+const gui = new GUI()
+
+//main folders
+
+const sphereStandardFolder = gui.addFolder('Standard Material Sphere')
+const capsulseFolder = gui.addFolder('Capsule')
+
 
 /**
  * Base
@@ -33,7 +46,7 @@ const matcapOne = textureLoader.load("./textures/matcaps/1.png");
 matcapOne.colorSpace = THREE.SRGBColorSpace;
 
 //gradients
-const gradientThree = textureLoader.load("./gradients/3.jpg");
+const gradientThree = textureLoader.load("./textures/gradients/3.jpg");
 
 /*
 Materials
@@ -63,12 +76,63 @@ const materialMatCap = new THREE.MeshMatcapMaterial();
 materialMatCap.matcap = matcapOne;
 
 //Mesh Depth Materials
+const depthMaterial = new THREE.MeshDepthMaterial();
+
+//mesh Lambert Material
+const lambertMaterial = new THREE.MeshLambertMaterial();
+
+//mesh Phong Material
+const phongMaterial = new THREE.MeshPhongMaterial();
+phongMaterial.shininess = 100
+phongMaterial.specular = new THREE.Color(0x1188ff)
+
+
+//mesh Toon Material
+const toonMaterial = new THREE.MeshToonMaterial();
+toonMaterial.gradientMap = gradientThree
+//this makes it so the gradient texture is not blended by the gpu
+gradientThree.magFilter = THREE.NearestFilter
+gradientThree.generateMipmaps = false
+
+
+//Mesh Standard Material
+const standardMaterial = new THREE.MeshStandardMaterial();
+standardMaterial.roughness = .5
+standardMaterial.metalness = 1
+
+
+
+
+
+
+/*
+Debug Materials
+*/
+
+//Standard Material Sphere
+const standardMaterialSphere = sphereStandardFolder.addFolder('Standard Material')
+standardMaterialSphere
+.add(standardMaterial, 'roughness')
+.min(0)
+ .max(1) 
+ .step(0.001)
+
+standardMaterialSphere
+.add(standardMaterial, 'metalness')
+.min(0) 
+.max(1) 
+.step(0.001)
+
+
+
+
 
 /*
 OBJECTS
 */
 
-//sphere
+
+//spheres
 const sphere = new THREE.Mesh(
   new THREE.SphereGeometry(0.5, 16, 16),
   normalMaterial
@@ -81,6 +145,12 @@ const sphereMetcap = new THREE.Mesh(
 );
 sphereMetcap.position.setY(1);
 
+const sphereStandard = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16,16),
+ standardMaterial)
+ sphereStandard.position.y = -1;
+
+
+
 //torus
 const torus = new THREE.Mesh(
   new THREE.TorusGeometry(0.3, 0.2, 16, 32),
@@ -88,28 +158,87 @@ const torus = new THREE.Mesh(
 );
 torus.position.set(2, 0, 0);
 
+
 //plane
 const plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), material);
+plane.position.y = 5;
 console.log(plane);
+
 
 //cone
 const cone = new THREE.Mesh(
   new THREE.ConeGeometry(0.5, 0.7, 32),
   normalMaterial
 );
-cone.position.setY(-1);
+cone.position.setY(-3);
+
 
 //Torus Knot
 const knot = new THREE.Mesh(
-  new THREE.TorusKnotGeometry(10, 3, 100, 16),
-  materialMatCap
+  new THREE.TorusKnotGeometry(.2, 1, 100, 8),
+  depthMaterial
 );
+
+knot.position.setY(3)
+
+
+//Box 
+const box = new THREE.Mesh(new THREE.BoxGeometry(1,1,1),lambertMaterial);
+
+box.position.y = -2
+box.position.x = -3
+
+
+const boxPhong = new THREE.Mesh(new THREE.BoxGeometry(1,1,1),phongMaterial);
+
+
+//capsule
+const capsule = new THREE.Mesh(new THREE.CapsuleGeometry(.5,.5,4,8,20),toonMaterial);
+
+capsule.position.y = -2
+capsule.position.x = 2
+
+
+/**
+ * Debug Objects
+ */
+
+//Standard Material Sphere
+const standardSphereMove = sphereStandardFolder.addFolder('Move')
+const capsuleMove = capsulseFolder.addFolder('Move')
+
+
+function moveObject(folder, object){
+
+  folder
+    .add(object.position, 'y')
+    .min(-5)
+    .max(5)
+    .step(.01)
+
+  folder
+    .add(object.position, 'x')
+    .min(-5)
+    .max(5)
+    .step(.01)
+}
+
+moveObject(standardSphereMove, sphereStandard)
+moveObject(capsuleMove, capsule)
+
+
+
 
 /* 
 Scene
  */
 const scene = new THREE.Scene();
-scene.add(torus, plane, sphere, sphereMetcap, cone, knot);
+
+//geos
+scene.add(torus, plane, sphere, sphereMetcap, cone, knot, box, boxPhong,capsule, sphereStandard);
+
+
+
 
 /**
  * Sizes
@@ -133,9 +262,34 @@ window.addEventListener("resize", () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
+
+/*
+LIGHTS
+*/
+
+//Ambient Light
+const ambientLight = new THREE.AmbientLight(0xffffff,1);
+
+
+//point light
+const pointLight = new THREE.PointLight(0xffffff, 30)
+
+pointLight.position.x = 2
+pointLight.position.y = 3
+pointLight.position.z = 4
+
+//add lights
+scene.add( pointLight)
+
+
+
+
+
+
 /**
  * Camera
  */
+
 // Base camera
 const camera = new THREE.PerspectiveCamera(
   75,
@@ -152,6 +306,7 @@ scene.add(camera);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 
+
 /**
  * Renderer
  */
@@ -160,6 +315,8 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+
 
 /**
  * Animate
@@ -171,17 +328,26 @@ const tick = () => {
   const elapsedTime = clock.getElapsedTime();
 
   //update objects
-  sphere.rotation.y = 0.1 * elapsedTime;
-  sphereMetcap.rotation.y = 0.1 * elapsedTime;
-  plane.rotation.y = 0.1 * elapsedTime;
-  torus.rotation.y = 0.1 * elapsedTime;
-  cone.rotation.y = 0.1 * elapsedTime;
+  
+  function rotate(geo){
+    geo.rotation.y = 0.1 * elapsedTime;
+    geo.rotation.x = -0.15 * elapsedTime;
+  }
 
-  sphere.rotation.x = -0.15 * elapsedTime;
-  sphereMetcap.rotation.x = -0.15 * elapsedTime;
-  plane.rotation.x = -0.15 * elapsedTime;
-  torus.rotation.x = -0.15 * elapsedTime;
-  cone.rotation.x = -0.15 * elapsedTime;
+  function rotateGeos(){
+    rotate(sphere)
+    rotate(sphereMetcap)
+    rotate(plane)
+    rotate(torus)
+    rotate(cone)
+    rotate(box)
+    rotate(boxPhong)
+    rotate(sphereStandard)
+    rotate(capsule)
+  }
+
+  rotateGeos()
+
 
   // Update controls
   controls.update();
