@@ -109,9 +109,11 @@ gradientThree.generateMipmaps = false
 
 //Mesh Standard Material
 const standardMaterial = new THREE.MeshStandardMaterial();
-standardMaterial.roughness = .5
-standardMaterial.metalness = 1
-
+standardMaterial.roughness = .2
+standardMaterial.metalness = .7
+standardMaterial.map = doorColorTexture
+standardMaterial.aoMap = doorAmbientTexture
+standardMaterial.aoMapIntensity = 0
 
 
 
@@ -148,6 +150,15 @@ function wireFrame(folder, material)
   .add(material, 'wireframe')
 }
 
+function aoMapIntensityMod(folder, material)
+{
+  folder
+  .add(material, 'aoMapIntensity')
+  .min(0) 
+  .max(10) 
+  .step(0.001)
+}
+
 function materialDebugs()
 {
   //metalness and roughness
@@ -160,6 +171,9 @@ function materialDebugs()
   wireFrame(phongMaterialAdjust, phongMaterial)
   wireFrame(normalMaterialAdjust, normalMaterial)
 
+  
+  //AO Map Intensity ir AO
+  aoMapIntensityMod(standardMaterialSphere, standardMaterial)
 }
 
 materialDebugs()
@@ -240,7 +254,7 @@ capsule.position.x = 2
  * Debug Objects
  */
 
-//Standard Material Sphere
+//Folders
 const standardSphereMove = sphereStandardFolder.addFolder('Move')
 const capsuleMove = capsulseFolder.addFolder('Move')
 const boxPhongMove = boxPhongFolder.addFolder('Move')
