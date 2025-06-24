@@ -1,27 +1,27 @@
 import * as THREE from "three";
 import { ThreeMFLoader } from "three/examples/jsm/Addons.js";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import GUI from 'lil-gui'
+import GUI from "lil-gui";
 import { RGBELoader } from "three/examples/jsm/Addons.js";
 
-console.log({RGBELoader})
-
+console.log({ RGBELoader });
 
 /**
  * DEBUG
  ** */
-const gui = new GUI()
+const gui = new GUI();
 
 //main folders
 
-const sphereStandardFolder = gui.addFolder('Standard Material Sphere')
-const sphereMetcapFolder = gui.addFolder('Metcap Sphere')
-const capsulseFolder = gui.addFolder('Capsule')
-const boxPhongFolder = gui.addFolder('Box Phong')
-const normalMaterialFolder = gui.addFolder('Normal Sphere')
-const standardPlaneFolder = gui.addFolder('Standard Plane')
-const physicalPlaneFolder = gui.addFolder('Physical Plane')
-
+const sphereStandardFolder = gui.addFolder("Standard Material Sphere");
+const sphereMetcapFolder = gui.addFolder("Metcap Sphere");
+const capsulseFolder = gui.addFolder("Capsule");
+const boxPhongFolder = gui.addFolder("Box Phong");
+const normalMaterialFolder = gui.addFolder("Normal Sphere");
+const standardPlaneFolder = gui.addFolder("Standard Plane");
+const physicalPlaneFolder = gui.addFolder("Physical Plane");
+const sphereSheenFolder = gui.addFolder("Sphere Sheen");
+const icoFolder = gui.addFolder("Ico Transmission");
 
 /**
  * Base
@@ -56,9 +56,7 @@ matcapOne.colorSpace = THREE.SRGBColorSpace;
 //gradients
 const gradientThree = textureLoader.load("./textures/gradients/3.jpg");
 
-
 //env map
-
 
 /*
 Materials
@@ -95,176 +93,184 @@ const lambertMaterial = new THREE.MeshLambertMaterial();
 
 //mesh Phong Material
 const phongMaterial = new THREE.MeshPhongMaterial();
-phongMaterial.shininess = 100
-phongMaterial.specular = new THREE.Color(0x1188ff)
-phongMaterial.roughness = .5
-phongMaterial.metalness = 1
-
-
+phongMaterial.shininess = 100;
+phongMaterial.specular = new THREE.Color(0x1188ff);
+phongMaterial.roughness = 0.5;
+phongMaterial.metalness = 1;
 
 //mesh Toon Material
 const toonMaterial = new THREE.MeshToonMaterial();
-toonMaterial.gradientMap = gradientThree
+toonMaterial.gradientMap = gradientThree;
 //this makes it so the gradient texture is not blended by the gpu
-gradientThree.magFilter = THREE.NearestFilter
-gradientThree.generateMipmaps = false
-
+gradientThree.magFilter = THREE.NearestFilter;
+gradientThree.generateMipmaps = false;
 
 //Mesh Standard Material
 const standardMaterial = new THREE.MeshStandardMaterial();
-standardMaterial.transparent = true
-standardMaterial.roughness = 1
-standardMaterial.metalness = 1
+standardMaterial.transparent = true;
+standardMaterial.roughness = 1;
+standardMaterial.metalness = 1;
 
-standardMaterial.map = doorColorTexture
-standardMaterial.aoMap = doorAmbientTexture
-standardMaterial.aoMapIntensity = 0
-standardMaterial.displacementMap = doorHeightTexture
-standardMaterial.displacementScale =.1
-standardMaterial.metalnessMap = doorMetalTexture
-standardMaterial.roughnessMap = doorRoughTexture
-standardMaterial.normalMap = doorNormalTexture
-standardMaterial.alphaMap = doorAlphaTexture
-
+standardMaterial.map = doorColorTexture;
+standardMaterial.aoMap = doorAmbientTexture;
+standardMaterial.aoMapIntensity = 0;
+standardMaterial.displacementMap = doorHeightTexture;
+standardMaterial.displacementScale = 0.1;
+standardMaterial.metalnessMap = doorMetalTexture;
+standardMaterial.roughnessMap = doorRoughTexture;
+standardMaterial.normalMap = doorNormalTexture;
+standardMaterial.alphaMap = doorAlphaTexture;
 
 //Mesh Physical Material
 const physicalMaterial = new THREE.MeshPhysicalMaterial();
-physicalMaterial.transparent = true
-physicalMaterial.roughness = 1
-physicalMaterial.metalness = 1
+physicalMaterial.transparent = true;
+physicalMaterial.roughness = 1;
+physicalMaterial.metalness = 1;
 
-physicalMaterial.map = doorColorTexture
-physicalMaterial.aoMap = doorAmbientTexture
-physicalMaterial.aoMapIntensity = 0
-physicalMaterial.displacementMap = doorHeightTexture
-physicalMaterial.displacementScale =.1
-physicalMaterial.metalnessMap = doorMetalTexture
-physicalMaterial.roughnessMap = doorRoughTexture
-physicalMaterial.normalMap = doorNormalTexture
-physicalMaterial.alphaMap = doorAlphaTexture
-physicalMaterial.side = THREE.DoubleSide
+physicalMaterial.map = doorColorTexture;
+physicalMaterial.aoMap = doorAmbientTexture;
+physicalMaterial.aoMapIntensity = 0;
+physicalMaterial.displacementMap = doorHeightTexture;
+physicalMaterial.displacementScale = 0.1;
+physicalMaterial.metalnessMap = doorMetalTexture;
+physicalMaterial.roughnessMap = doorRoughTexture;
+physicalMaterial.normalMap = doorNormalTexture;
+physicalMaterial.alphaMap = doorAlphaTexture;
+physicalMaterial.side = THREE.DoubleSide;
 
-physicalMaterial.clearcoat = 1
-physicalMaterial.clearcoatRoughness = 1
+physicalMaterial.clearcoat = 1;
+physicalMaterial.clearcoatRoughness = 1;
 
+//Mesh Physical Material 2
+const physicalMaterialTwo = new THREE.MeshPhysicalMaterial();
+physicalMaterialTwo.sheen = 1;
+physicalMaterialTwo.sheenRoughness = 1;
+physicalMaterialTwo.sheenColor.set(0xff0000);
 
+//Iridescence
+const iridescenceMaterial = new THREE.MeshPhysicalMaterial();
+iridescenceMaterial.iridescence = 1;
+iridescenceMaterial.iridescenceIOR = 1;
+iridescenceMaterial.iridescenceThicknessRange = [100, 800];
 
+//Transmission
+const transmissionMaterial = new THREE.MeshPhysicalMaterial();
+//transmissionMaterial.opacity = 0.5;
+transmissionMaterial.transparent = true;
+transmissionMaterial.transmission = 1;
+transmissionMaterial.ior = 1.5;
+transmissionMaterial.thickness = 0.5;
+transmissionMaterial.roughness = 0;
 
-
-
+transmissionMaterial.iridescence = 1;
+iridescenceMaterial.iridescenceIOR = 1;
+iridescenceMaterial.iridescenceThicknessRange = [100, 800];
 
 /*
 Debug Materials
 */
 
 //Folders
-const sphereMetcapMaterialTweaks = sphereMetcapFolder.addFolder('Metcap Material')
-const standardMaterialSphere = sphereStandardFolder.addFolder('Standard Material')
-const phongMaterialAdjust = boxPhongFolder.addFolder('Phong Material')
-const normalMaterialAdjust = normalMaterialFolder.addFolder('Normal Material')
-const standardMaterialPlane = standardPlaneFolder.addFolder('Standard Material')
-const physicalPlaneMaterialTweaks = physicalPlaneFolder.addFolder('Physical Material')
-const toonCapsuleTweaks = capsulseFolder.addFolder('Toon Material')
+const sphereMetcapMaterialTweaks =
+  sphereMetcapFolder.addFolder("Metcap Material");
+const standardMaterialSphere =
+  sphereStandardFolder.addFolder("Standard Material");
+const phongMaterialAdjust = boxPhongFolder.addFolder("Phong Material");
+const normalMaterialAdjust = normalMaterialFolder.addFolder("Normal Material");
+const standardMaterialPlane =
+  standardPlaneFolder.addFolder("Standard Material");
+const physicalPlaneMaterialTweaks =
+  physicalPlaneFolder.addFolder("Physical Material");
+const toonCapsuleTweaks = capsulseFolder.addFolder("Toon Material");
+const sheenSphereTweaks = sphereSheenFolder.addFolder("Sphere Sheen");
+const icoTransTweaks = icoFolder.addFolder("Transmission Tweaks");
 
-function colorPicker(folder, material)
-{
-  folder
-  .addColor(material, 'color')
-  .name('Coloe Picker')
+function colorPicker(folder, material) {
+  folder.addColor(material, "color").name("Coloe Picker");
 }
 
-function MetalRough(folder, material)
-{
-folder
-.add(material, 'roughness')
-.min(0)
-.max(1)
-.step(0.001)
+function MetalRough(folder, material) {
+  folder.add(material, "roughness").min(0).max(1).step(0.001);
 
-folder
-.add(material,'metalness')
-.min(0) 
-.max(1) 
-.step(0.001)
+  folder.add(material, "metalness").min(0).max(1).step(0.001);
 }
 
-function wireFrame(folder, material)
-{
-  folder
-  .add(material, 'wireframe')
+function wireFrame(folder, material) {
+  folder.add(material, "wireframe");
 }
 
-function aoMapIntensityMod(folder, material)
-{
-  folder
-  .add(material, 'aoMapIntensity')
-  .min(0) 
-  .max(10) 
-  .step(0.001)
+function aoMapIntensityMod(folder, material) {
+  folder.add(material, "aoMapIntensity").min(0).max(10).step(0.001);
 }
 
-function displacementScale(folder, material)
-{
-  folder
-  .add(material, 'displacementScale')
-  .min(0)
-  .max(1)
-  .step(.001)
+function displacementScale(folder, material) {
+  folder.add(material, "displacementScale").min(0).max(1).step(0.001);
 }
 
-function clearCoatTweaks(folder, material)
-{
-  folder
-  .add(material, 'clearcoat')
-  .min(0)
-  .max(1)
-  .step(.001)
+function clearCoatTweaks(folder, material) {
+  folder.add(material, "clearcoat").min(0).max(1).step(0.001);
 
-  folder
-  .add(material, 'clearcoatRoughness')
-  .min(0)
-  .max(1)
-  .step(.001)
-
+  folder.add(material, "clearcoatRoughness").min(0).max(1).step(0.001);
 }
 
-function materialDebugs()
-{
+function thicknessTweaks(folder, material) {
+  folder.add(material, "thickness").min(0).max(10).step(0.0001);
+}
 
+function transmissionTweaks(folder, material) {
+  folder.add(material, "transmission").min(0).max(1).step(0.0001);
+}
+
+function iorTweaks(folder, material) {
+  folder.add(material, "ior").min(1).max(2.33).step(0.0001);
+}
+
+function materialDebugs() {
   //color picker
-  colorPicker(sphereMetcapMaterialTweaks, materialMatCap)
-  colorPicker(toonCapsuleTweaks, toonMaterial)
+  colorPicker(sphereMetcapMaterialTweaks, materialMatCap);
+  colorPicker(toonCapsuleTweaks, toonMaterial);
+  colorPicker(sheenSphereTweaks, physicalMaterialTwo);
+  colorPicker(icoTransTweaks, transmissionMaterial);
 
-   //wireframes
-  wireFrame(standardMaterialSphere,standardMaterial)
-  wireFrame(phongMaterialAdjust, phongMaterial)
-  wireFrame(normalMaterialAdjust, normalMaterial)
-  wireFrame(physicalPlaneMaterialTweaks, physicalMaterial)
+  //wireframes
+  wireFrame(standardMaterialSphere, standardMaterial);
+  wireFrame(phongMaterialAdjust, phongMaterial);
+  wireFrame(normalMaterialAdjust, normalMaterial);
+  wireFrame(physicalPlaneMaterialTweaks, physicalMaterial);
 
   //metalness and roughness
-  MetalRough(standardMaterialSphere, standardMaterial)
-  MetalRough(phongMaterialAdjust, phongMaterial)
-  MetalRough(standardMaterialPlane, standardMaterial)
-  MetalRough(physicalPlaneMaterialTweaks, physicalMaterial)
+  MetalRough(standardMaterialSphere, standardMaterial);
+  MetalRough(phongMaterialAdjust, phongMaterial);
+  MetalRough(standardMaterialPlane, standardMaterial);
+  MetalRough(physicalPlaneMaterialTweaks, physicalMaterial);
+  MetalRough(icoTransTweaks, transmissionMaterial);
+
+  //thickness
+  thicknessTweaks(icoTransTweaks, transmissionMaterial);
 
   //AO Map Intensity ir AO
-  aoMapIntensityMod(standardMaterialSphere, standardMaterial)
-  aoMapIntensityMod(physicalPlaneMaterialTweaks, physicalMaterial)
+  aoMapIntensityMod(standardMaterialSphere, standardMaterial);
+  aoMapIntensityMod(physicalPlaneMaterialTweaks, physicalMaterial);
 
   //displacement scale
-  displacementScale(standardMaterialPlane, standardMaterial)
-  displacementScale(physicalPlaneMaterialTweaks, physicalMaterial)
+  displacementScale(standardMaterialPlane, standardMaterial);
+  displacementScale(physicalPlaneMaterialTweaks, physicalMaterial);
 
   //clearcoat
-  clearCoatTweaks(physicalPlaneMaterialTweaks, physicalMaterial)
+  clearCoatTweaks(physicalPlaneMaterialTweaks, physicalMaterial);
+
+  //ior
+  iorTweaks(icoTransTweaks, transmissionMaterial);
+
+  //transmission
+  transmissionTweaks(icoTransTweaks, transmissionMaterial);
 }
 
-materialDebugs()
+materialDebugs();
 
 /*
 OBJECTS
 */
-
 
 //spheres
 const sphere = new THREE.Mesh(
@@ -279,11 +285,17 @@ const sphereMetcap = new THREE.Mesh(
 );
 sphereMetcap.position.setY(1);
 
-const sphereStandard = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16,16),
- standardMaterial)
- sphereStandard.position.y = -1;
+const sphereStandard = new THREE.Mesh(
+  new THREE.SphereGeometry(0.5, 16, 16),
+  standardMaterial
+);
+sphereStandard.position.y = -1;
 
-
+const spherePhysical = new THREE.Mesh(
+  new THREE.SphereGeometry(0.5, 16, 16),
+  physicalMaterialTwo
+);
+spherePhysical.position.setY(-2);
 
 //torus
 const torus = new THREE.Mesh(
@@ -292,14 +304,19 @@ const torus = new THREE.Mesh(
 );
 torus.position.set(2, 0, 0);
 
-
 //plane
-const plane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1,100,100), standardMaterial);
+const plane = new THREE.Mesh(
+  new THREE.PlaneGeometry(1, 1, 100, 100),
+  standardMaterial
+);
 plane.position.y = 5;
 
-const physicalPlane = new THREE.Mesh(new THREE.PlaneGeometry(1, 1,100,100), physicalMaterial)
-physicalPlane.position.x = -2
-physicalPlane.position.y = 5
+const physicalPlane = new THREE.Mesh(
+  new THREE.PlaneGeometry(1, 1, 100, 100),
+  physicalMaterial
+);
+physicalPlane.position.x = -2;
+physicalPlane.position.y = 5;
 
 //cone
 const cone = new THREE.Mesh(
@@ -308,77 +325,69 @@ const cone = new THREE.Mesh(
 );
 cone.position.setY(-3);
 
-
 //Torus Knot
 const knot = new THREE.Mesh(
-  new THREE.TorusKnotGeometry(.2, 1, 100, 8),
+  new THREE.TorusKnotGeometry(0.2, 1, 100, 8),
   depthMaterial
 );
 
-knot.position.setY(3)
+knot.position.setY(3);
 
+//Box
+const box = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), lambertMaterial);
 
-//Box 
-const box = new THREE.Mesh(new THREE.BoxGeometry(1,1,1),lambertMaterial);
+box.position.y = -2;
+box.position.x = -3;
 
-box.position.y = -2
-box.position.x = -3
-
-
-const boxPhong = new THREE.Mesh(new THREE.BoxGeometry(1,1,1),phongMaterial);
-
+const boxPhong = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), phongMaterial);
 
 //capsule
-const capsule = new THREE.Mesh(new THREE.CapsuleGeometry(.5,.5,4,8,20),toonMaterial);
+const capsule = new THREE.Mesh(
+  new THREE.CapsuleGeometry(0.5, 0.5, 4, 8, 20),
+  toonMaterial
+);
 
-capsule.position.y = -2
-capsule.position.x = 2
+capsule.position.y = -2;
+capsule.position.x = 2;
 
+//Ico Shape
+const icoShape = new THREE.Mesh(
+  new THREE.IcosahedronGeometry(1, 0),
+  transmissionMaterial
+);
+icoShape.position.y = -4;
+icoShape.position.x = 2;
 
 /**
  * Debug Objects
  */
 
 //Folders
-const standardSphereMove = sphereStandardFolder.addFolder('Move')
-const capsuleMove = capsulseFolder.addFolder('Move')
-const boxPhongMove = boxPhongFolder.addFolder('Move')
-const standardPlaneMove = standardPlaneFolder.addFolder('Move')
-const physicalPlaneMove = physicalPlaneFolder.addFolder('Move')
+const standardSphereMove = sphereStandardFolder.addFolder("Move");
+const capsuleMove = capsulseFolder.addFolder("Move");
+const boxPhongMove = boxPhongFolder.addFolder("Move");
+const standardPlaneMove = standardPlaneFolder.addFolder("Move");
+const physicalPlaneMove = physicalPlaneFolder.addFolder("Move");
+const icoSphereMove = icoFolder.addFolder("Move");
 
-function moveObject(folder, object){
+function moveObject(folder, object) {
+  folder.add(object.position, "y").min(-5).max(5).step(0.01);
 
-  folder
-    .add(object.position, 'y')
-    .min(-5)
-    .max(5)
-    .step(.01)
+  folder.add(object.position, "x").min(-5).max(5).step(0.01);
 
-  folder
-    .add(object.position, 'x')
-    .min(-5)
-    .max(5)
-    .step(.01)
-
-   folder
-    .add(object.position, 'z')
-    .min(-5)
-    .max(5)
-    .step(.01)
+  folder.add(object.position, "z").min(-5).max(5).step(0.01);
 }
 
-
-
-function debugMove(){
-moveObject(standardSphereMove, sphereStandard)
-moveObject(capsuleMove, capsule)
-moveObject(boxPhongMove, boxPhong)
-moveObject(standardPlaneMove, plane)
-moveObject(physicalPlaneMove, physicalPlane)
+function debugMove() {
+  moveObject(standardSphereMove, sphereStandard);
+  moveObject(capsuleMove, capsule);
+  moveObject(boxPhongMove, boxPhong);
+  moveObject(standardPlaneMove, plane);
+  moveObject(physicalPlaneMove, physicalPlane);
+  moveObject(icoSphereMove, icoShape);
 }
 
-debugMove()
-
+debugMove();
 
 /* 
 Scene
@@ -386,10 +395,21 @@ Scene
 const scene = new THREE.Scene();
 
 //geos
-scene.add(torus, plane, sphere, sphereMetcap, cone, knot, box, boxPhong,capsule, sphereStandard, physicalPlane);
-
-
-
+scene.add(
+  torus,
+  plane,
+  sphere,
+  sphereMetcap,
+  cone,
+  knot,
+  box,
+  boxPhong,
+  capsule,
+  sphereStandard,
+  physicalPlane,
+  spherePhysical,
+  icoShape
+);
 
 /**
  * Sizes
@@ -413,44 +433,35 @@ window.addEventListener("resize", () => {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 });
 
-
 /**
  * RGBE Loader
  */
 
-const rgbeLoader = new RGBELoader()
+const rgbeLoader = new RGBELoader();
 
-rgbeLoader.load('./textures/environmentMap/2k.hdr', (environmentMap)=>{
+rgbeLoader.load("./textures/environmentMap/2k.hdr", (environmentMap) => {
+  environmentMap.mapping = THREE.EquirectangularReflectionMapping;
 
-  environmentMap.mapping = THREE.EquirectangularReflectionMapping
-
-  scene.background = environmentMap
-  scene.environment = environmentMap
-
-})
+  scene.background = environmentMap;
+  scene.environment = environmentMap;
+});
 
 /*
 LIGHTS
 */
 
 //Ambient Light
-const ambientLight = new THREE.AmbientLight(0xffffff,1);
-
+const ambientLight = new THREE.AmbientLight(0xffffff, 1);
 
 //point light
-const pointLight = new THREE.PointLight(0xffffff, 30)
+const pointLight = new THREE.PointLight(0xffffff, 30);
 
-pointLight.position.x = 2
-pointLight.position.y = 3
-pointLight.position.z = 4
+pointLight.position.x = 2;
+pointLight.position.y = 3;
+pointLight.position.z = 4;
 
 //add lights
-scene.add( pointLight)
-
-
-
-
-
+scene.add(pointLight);
 
 /**
  * Camera
@@ -472,7 +483,6 @@ scene.add(camera);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
 
-
 /**
  * Renderer
  */
@@ -481,8 +491,6 @@ const renderer = new THREE.WebGLRenderer({
 });
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-
 
 /**
  * Animate
@@ -494,27 +502,26 @@ const tick = () => {
   const elapsedTime = clock.getElapsedTime();
 
   //update objects
-  
-  function rotate(geo){
+
+  function rotate(geo) {
     geo.rotation.y = 0.1 * elapsedTime;
     geo.rotation.x = -0.15 * elapsedTime;
   }
 
-  function rotateGeos(){
-    rotate(sphere)
-    rotate(sphereMetcap)
-    rotate(plane)
-    rotate(torus)
-    rotate(cone)
-    rotate(box)
-    rotate(boxPhong)
-    rotate(sphereStandard)
-    rotate(capsule)
-    rotate(physicalPlane)
+  function rotateGeos() {
+    rotate(sphere);
+    rotate(sphereMetcap);
+    rotate(plane);
+    rotate(torus);
+    rotate(cone);
+    rotate(box);
+    rotate(boxPhong);
+    rotate(sphereStandard);
+    rotate(capsule);
+    rotate(physicalPlane);
   }
 
-  rotateGeos()
-
+  rotateGeos();
 
   // Update controls
   controls.update();
